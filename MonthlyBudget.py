@@ -1,14 +1,7 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# ## MonthlyBudget
-# 
-# New notebook
-
-# ###  This script is used to take the DGR budget pieces from the NSPB budget table for the specified year in a bronze lakehouse table.  They are then stored as a monthly budget table where they can be used for the calculation of a weighted daily DGR budget.
-
-# In[1]:
-
+# ###  This script is used to take the DGR budget pieces from the NSPB budget 
+#table for the specified year in a bronze lakehouse table.  They are then stored 
+#as a monthly budget table where they can be used for the calculation of a 
+#weighted daily DGR budget.
 
 # imports
 import pandas as pd
@@ -25,14 +18,19 @@ df = spark.sql("select * from budget_2025_bronze").toPandas()
 
 
 # rename columns
-df = df.rename(columns={"TP1":"1","TP2":"2","TP3":"3","TP4":"4","TP5":"5","TP6":"6","TP7":"7","TP8":"8","TP9":"9","TP10":"10","TP11":"11","TP12":"12"})
-
-
-# In[4]:
-
+df = df.rename(
+    columns={
+        "TP1":"1","TP2":"2","TP3":"3","TP4":"4","TP5":"5","TP6":"6",
+        "TP7":"7","TP8":"8","TP9":"9","TP10":"10","TP11":"11","TP12":"12"
+    }
+)
 
 # unpivot columns
-df2 = pd.melt(df, id_vars=["Year","Account","dept"], value_vars=["1","2","3","4","5","6","7","8","9","10","11","12"])
+df2 = pd.melt(
+    df, 
+    id_vars=["Year","Account","dept"], 
+    value_vars=["1","2","3","4","5","6","7","8","9","10","11","12"]
+)
 
 
 # In[11]:
@@ -139,17 +137,8 @@ df_eBooks = df_eBooks.rename(columns={"variable": "month", "value":"eBooks"})
 df_eBooks = df_eBooks.reset_index(drop=True)
 master_df = master_df.merge(df_eBooks, how='left')
 
-
-
-# In[13]:
-
-
 # get donated goods percentages
 category_df = spark.sql("select * from donated_categories_percentage_budget").toPandas()
-
-
-# In[14]:
-
 
 # Create a holding df
 donated_pct = pd.DataFrame()
