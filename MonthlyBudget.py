@@ -1,4 +1,4 @@
-# ###  This script is used to take the DGR budget pieces from the NSPB budget 
+###  This script is used to take the DGR budget pieces from the NSPB budget 
 #table for the specified year in a bronze lakehouse table.  They are then stored 
 #as a monthly budget table where they can be used for the calculation of a 
 #weighted daily DGR budget.
@@ -6,16 +6,8 @@
 # imports
 import pandas as pd
 
-
-# In[2]:
-
-
 #load NSPB budget into pandas df
 df = spark.sql("select * from budget_2025_bronze").toPandas()
-
-
-# In[3]:
-
 
 # rename columns
 df = df.rename(
@@ -31,10 +23,6 @@ df2 = pd.melt(
     id_vars=["Year","Account","dept"], 
     value_vars=["1","2","3","4","5","6","7","8","9","10","11","12"]
 )
-
-
-# In[11]:
-
 
 # get store id for dept.  Add any new stores.
 df2.loc[df2["dept"]=="156", "store"] = 11
@@ -76,10 +64,6 @@ df2.loc[df2["dept"]=="358", "store"] = 47
 df2.loc[df2["dept"]=="152", "store"] = 50
 df2.loc[df2["dept"]=="153", "store"] = 40
 df2.loc[df2["dept"]=="154", "store"] = 23
-
-
-# In[12]:
-
 
 # Donated Goods
 df_DonatedGoods = df2.loc[df2["Account"].isin(["41102", "41152"])]
@@ -164,10 +148,6 @@ donated_pct["Wares"] = donated_pct["DonatedGoods"] * donated_pct["warespct"]
 donated_pct["Furniture"] = donated_pct["DonatedGoods"] * donated_pct["furnpct"]
 donated_pct["Shoes"] = donated_pct["DonatedGoods"] * donated_pct["shoespct"]
 donated_pct["GRID"] = donated_pct["DonatedGoods"] * donated_pct["gridpct"]
-
-
-# In[15]:
-
 
 donated_pct["store"] = pd.to_numeric(donated_pct["store"], downcast='integer')
 donated_pct = donated_pct[["store","month","Textiles","EM","Wares","Furniture","Shoes","GRID"]]
